@@ -6,7 +6,7 @@ from Enumerators import Color, CardType, CardSuperType
 
 @dataclass
 class Card:
-    PLACEHOLDER_IMG_PATH = "assets/art/placeHolder_Dwarf.jpg"
+    PLACEHOLDER_IMG_PATH = "assets/art/placeHolder_Dwarf.png"
 
     name: str    
     type: Set[CardType]

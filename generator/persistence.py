@@ -69,8 +69,11 @@ class CardDataLoader:
         # Import the type as a set of type Enum
         cardDict["type"] = CardType.set_from_symbol(cardDict["type"])
 
-        # Import the supertype as a set of supertype Enum
-        cardDict["supertype"] = CardSuperType.set_from_symbol(cardDict["supertype"])
+        # Import the supertype as a set of supertype Enum if there is a supertype
+        if len(cardDict["supertype"]) > 0:
+            cardDict["supertype"] = CardSuperType.set_from_symbol(cardDict["supertype"])
+        else:
+            cardDict["supertype"] = set[CardSuperType]()
 
 
         # Normalize P/T

@@ -21,6 +21,7 @@ class CardRenderer:
 
     TYPE_X = 70
     TYPE_Y = 600
+    TYPE_W = 600
 
     ORACLE_X = 70
     ORACLE_Y = 660
@@ -41,7 +42,7 @@ class CardRenderer:
 
     NAME_FONT_SIZE = 40
     MANA_FONT_SIZE = 38
-    TYPE_FONT_SIZE = 36
+    TYPE_FONT_SIZE = (36, 34, 32, 30, 28)
     ORACLE_FONT_SIZE = (36, 32, 28)
     MANA_COST_ORACLE_DIF = 6
     MAX_LINE_ORACLE = 7
@@ -92,7 +93,7 @@ class CardRenderer:
 
         for word in words:
             if word == "\n":
-                lines.append(current.rstrip())
+                lines.append(current.strip())
                 current = ""
                 continue
 
@@ -100,11 +101,11 @@ class CardRenderer:
             if font.getlength(test) <= max_width:
                 current = test
             else:
-                lines.append(current.rstrip())
+                lines.append(current.strip())
                 current = word + " "
 
         if current.strip():
-            lines.append(current.rstrip())
+            lines.append(current.strip())
 
         return ("\n".join(lines), len(lines))
 
@@ -122,12 +123,17 @@ class CardRenderer:
         for i, word in enumerate(words):
             lower = word.lower()
 
+            #searches for the first apostrophe and capitalizes the next character
+            posApostrophe = lower.find("'") 
+            if posApostrophe > -1:
+                lower = lower[0:posApostrophe+1] + lower[posApostrophe+1].upper() + lower[posApostrophe+2:]
+
             if i == 0:
-                result.append(lower.capitalize())
+                result.append(lower[0].upper()+lower[1:])
             elif lower in small_words:
                 result.append(lower)
             else:
-                result.append(lower.capitalize())
+                result.append(lower[0].upper()+lower[1:])
 
         return " ".join(result)
 
@@ -263,17 +269,21 @@ class CardRenderer:
         else:
             ordered_color_symbol = "M"
 
-        if CardType.CREATURE in card.type:
-            if CardSuperType.LEGENDARY in card.supertype:
-                frame_path = self.FRAME_DIR / f"{ordered_color_symbol}Legend.png"
-            elif CardSuperType.TOKEN in card.supertype:
-                frame_path = self.FRAME_DIR / f"{ordered_color_symbol}Token.png"
-            else:
-                frame_path = self.FRAME_DIR / f"{ordered_color_symbol}FrameCreature.png"
-        elif CardType.ENCHANTMENT in card.type:
-            frame_path = self.FRAME_DIR / f"{ordered_color_symbol}Enchantment.png"
-        else:
-            frame_path = self.FRAME_DIR / f"{ordered_color_symbol}Frame.png"
+        ordered_type=""
+        for type in CardType:
+            if type == CardType.INSTANT or type == CardType.SORCERY:
+                continue
+            if type in card.type:
+                ordered_type += type.value
+        
+        for superType in CardSuperType:
+            if superType in card.supertype:
+                ordered_type += superType.value
+
+        if "Vehicle" in card.subtype:
+            ordered_type += "Vehicle"
+
+        frame_path = self.FRAME_DIR / f"{ordered_color_symbol+ordered_type}.png"
         
         frame = Image.open(frame_path).convert("RGBA")
         self._paste_image(frame, 0, 0, self.WIDTH, self.HEIGHT)
@@ -291,13 +301,17 @@ class CardRenderer:
         )
 
     def _draw_type_line(self, card: Card) -> None:
-        type_line = f"{CardSuperType.set_to_string(card.supertype)} {CardType.set_to_string(card.type)} — {card.subtype}"
+        if len(card.subtype) > 0:
+            type_line = f"{CardSuperType.set_to_string(card.supertype)} {CardType.set_to_string(card.type)} — {card.subtype}"
+        else:
+            type_line = f"{CardSuperType.set_to_string(card.supertype)} {CardType.set_to_string(card.type)}"
         self._draw_text(
             self._smart_title_case(type_line),
             self.TYPE_X,
             self.TYPE_Y,
             self.FONT_NAME,
             self.TYPE_FONT_SIZE,
+            max_width = self.TYPE_W,
         )
 
     def _draw_oracle_text(self, card: Card) -> None:

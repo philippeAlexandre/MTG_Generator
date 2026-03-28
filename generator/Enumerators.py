@@ -5,6 +5,7 @@ class FromSymbolMixin:
     @classmethod
     def from_symbol(cls, symbol: str):
         symbol = symbol.strip()
+        symbol = symbol.strip(',')
 
         # Try exact match (case-sensitive)
         for member in cls:
@@ -70,13 +71,14 @@ class Color(FromSymbolMixin, Enum):
         return symbol_sequence
     
 class CardType(FromSymbolMixin, Enum):
+    
+    PLANESWALKER = "Planeswalker"
+    LAND = "Land"
+    ENCHANTMENT = "Enchantment"
+    ARTIFACT = "Artifact"
     CREATURE = "Creature"
     SORCERY = "Sorcery"
     INSTANT = "Instant"
-    ENCHANTMENT = "Enchantment"
-    ARTIFACT = "Artifact"
-    PLANESWALKER = "Planeswalker"
-    LAND = "Land"
 
     
 
