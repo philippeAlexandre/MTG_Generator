@@ -50,6 +50,24 @@ class CardRenderer:
 
     MANA_PATTERN = re.compile(r"\{([^}]+)\}")
 
+    TABLE_CHAR_TRANS = str.maketrans({
+    "é": "e",
+    "è": "e",
+    "ê": "e",
+    "ë": "e",
+    "à": "a",
+    "â": "a",
+    "ô": "o",
+    "î": "i",
+    "ç": "c",
+    "’": "",
+    "'": "",
+    ":": "",
+    " ": "_",
+    ",": "",
+    })
+
+
     # ------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------
@@ -69,7 +87,8 @@ class CardRenderer:
             self._draw_power_toughness(card)
 
         if output_path is None:
-            output_path = f"{self.OUTPUT_DIR}/{card.colorIdentity.upper()}/{card.name}.png"
+            card_name_safe = card.name.translate(self.TABLE_CHAR_TRANS)
+            output_path = f"{self.OUTPUT_DIR}/{card.colorIdentity.upper()}/{card_name_safe}.png"
 
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
         self.canvas.save(output_path)
@@ -364,7 +383,7 @@ class CardRenderer:
             size = self.MANA_FONT_SIZE
             img = img.resize((size, size), Image.LANCZOS)
 
-            x -= size
+            x -= (size+2)
             self.canvas.paste(img, (x, y), img)
 
     # ------------------------------------------------------------
