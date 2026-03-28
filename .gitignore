@@ -1,2 +1,4 @@
 assets/mana
 assets/art
+data/*.csv
+output

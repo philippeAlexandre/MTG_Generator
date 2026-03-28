@@ -25,6 +25,7 @@ class CardRenderer:
     ORACLE_X = 70
     ORACLE_Y = 660
     ORACLE_W = 600
+    ORACLE_H = 310
 
     PT_X = 640
     PT_Y = 940
@@ -33,6 +34,7 @@ class CardRenderer:
 
     FRAME_DIR = Path("assets/frames")
     OUTPUT_DIR = Path("output")
+    
 
     FONT_NAME = "assets/fonts/Beleren2016.ttf"
     FONT_RULES = "assets/fonts/mplantin.ttf"
@@ -141,7 +143,8 @@ class CardRenderer:
             size,
             max_width: Optional[int] = None,
             max_line: int = 1,
-            centered: bool = False
+            centered_x: bool = False,
+            centered_y_height: Optional[int] = None
         ) -> None:
 
         # 1. Determine font size (your existing logic)
@@ -157,11 +160,17 @@ class CardRenderer:
             font = self._load_font(font_path, size)
 
         # 2. If centered, adjust x
-        if centered:
+        if centered_x:
             x = x - font.getlength(text) / 2
 
         # 3. Split into lines
         lines = text.split("\n")
+        line_height = font.size + 4
+        block_height = len(lines) * line_height
+
+        if centered_y_height is not None:
+            y = y + (centered_y_height - block_height) // 2
+
         line_y = y
 
         for line in lines:
@@ -221,7 +230,10 @@ class CardRenderer:
         w: int,
         h: int
     ) -> None:
-        img = Image.open(path).convert("RGBA")
+        try:
+            img = Image.open(path).convert("RGBA")
+        except FileNotFoundError:
+            img = Image.open(Card.PLACEHOLDER_IMG_PATH).convert("RGBA")
         img_w, img_h = img.size
 
         scale = max(w / img_w, h / img_h)
@@ -297,6 +309,7 @@ class CardRenderer:
             self.ORACLE_FONT_SIZE,
             max_width=self.ORACLE_W,
             max_line=self.MAX_LINE_ORACLE,
+            centered_y_height= self.ORACLE_H
         )
 
     def _draw_power_toughness(self, card: Card) -> None:
@@ -307,7 +320,7 @@ class CardRenderer:
             self.PT_Y,
             self.FONT_NAME,
             self.PT_FONT_SIZE,
-            centered = True
+            centered_x = True
         )
 
     def _draw_mana_cost(self, card: Card) -> None:
@@ -339,6 +352,10 @@ class CardRenderer:
 
             x -= size
             self.canvas.paste(img, (x, y), img)
+
+    # ------------------------------------------------------------
+    # Mana helpers
+    # ------------------------------------------------------------
 
     def _parse_mana_cost(self, cost: str) -> list[str]:
         """

@@ -6,6 +6,8 @@ from Enumerators import Color, CardType, CardSuperType
 
 @dataclass
 class Card:
+    PLACEHOLDER_IMG_PATH = "assets/art/placeHolder_Dwarf.jpg"
+
     name: str    
     type: Set[CardType]
     mana_cost: str
@@ -16,4 +18,4 @@ class Card:
     power: Optional[str] = None
     toughness: Optional[str] = None
     oracle_text: str = ""
-    art: str = "assets/art/placeHolder_Lockwell.jpg"
+    art: str = PLACEHOLDER_IMG_PATH

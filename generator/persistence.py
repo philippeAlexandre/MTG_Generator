@@ -87,7 +87,8 @@ class CardDataLoader:
             subtype=cardDict["subtype"],
             power=cardDict.get("P") or None,
             toughness=cardDict.get("T") or None,
-            oracle_text=cardDict["oracleText"]
+            oracle_text=cardDict["oracleText"],
+            art = f"assets/art/{cardDict["name"]}"
         )
 
 
